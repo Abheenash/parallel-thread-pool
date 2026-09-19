@@ -1,0 +1,29 @@
+hardware_concurrency = 10
+
+bench        mode          thr         time  speedup  note
+compute      serial          1     0.3772 s    1.00x  64 tasks x 1M sin/cos
+compute      pool            1     0.3752 s    1.01x  checksum ok
+compute      pool            2     0.1922 s    1.96x  checksum ok
+compute      pool            4     0.1042 s    3.62x  checksum ok
+compute      pool            8     0.0787 s    4.79x  checksum ok
+compute      pool           10     0.0702 s    5.37x  checksum ok
+compute      std::async     64     0.0677 s    5.57x  64 OS threads, checksum ok
+tiny         single-queue   10     0.6603 s    0.00x  1.51 M tasks/s, sum=500000
+tiny         work-stealing  10     0.5049 s    0.00x  1.98 M tasks/s, sum=500000
+imbalanced   serial          1     0.2614 s    1.00x  4,000 tasks, 2% are 100x
+imbalanced   single-queue   10     0.0445 s    5.87x  checksum ok, 0 steals
+imbalanced   work-stealing  10     0.0451 s    5.80x  checksum ok, 873 steals
+spawn        single-queue   10     0.6207 s    0.00x  checksum ok, 3.38 M tasks/s, 0 steals
+spawn        work-stealing  10     0.4947 s    0.00x  checksum ok, 4.24 M tasks/s, 414277 steals
+pfor-saxpy   serial          1     0.0065 s    1.00x  50M-element SAXPY, one pass
+pfor-saxpy   parallel_for    2     0.0061 s    1.05x  checksum ok (memory-bound)
+pfor-saxpy   parallel_for    4     0.0062 s    1.05x  checksum ok (memory-bound)
+pfor-saxpy   parallel_for    8     0.0058 s    1.12x  checksum ok (memory-bound)
+pfor-saxpy   parallel_for   10     0.0059 s    1.10x  checksum ok (memory-bound)
+pfor-compute serial          1     0.0247 s    1.00x  8M-element sin*cos+sqrt
+pfor-compute parallel_for    2     0.0127 s    1.94x  checksum ok (compute-bound)
+pfor-compute parallel_for    4     0.0096 s    2.58x  checksum ok (compute-bound)
+pfor-compute parallel_for    8     0.0056 s    4.40x  checksum ok (compute-bound)
+pfor-compute parallel_for   10     0.0050 s    4.98x  checksum ok (compute-bound)
+
+wrote bench.csv
