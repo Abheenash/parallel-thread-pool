@@ -178,7 +178,7 @@ public:
     Stats stats() const {
         Stats s;
         s.submitted = submitted_.load(std::memory_order_relaxed);
-        s.completed = completed_.load(std::memory_order_relaxed);
+        s.completed = completed_.load(std::memory_order_acquire);
         s.steals = steals_.load(std::memory_order_relaxed);
         s.exceptions = exceptions_.load(std::memory_order_relaxed);
         return s;
@@ -285,11 +285,14 @@ private:
 
     void run(Task& t) {
         t();
+        // Count the completion BEFORE releasing the pending count: wait_idle() returns
+        // the moment pending_ hits zero, and stats().completed must already be final
+        // then (CI caught the other order as an off-by-one on a fast Linux runner).
+        completed_.fetch_add(1, std::memory_order_release);
         if (pending_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
             std::lock_guard<std::mutex> lk(idle_m_);
             idle_cv_.notify_all();
         }
-        completed_.fetch_add(1, std::memory_order_relaxed);
         if (opts_.max_pending) {
             std::lock_guard<std::mutex> lk(cv_m_);
             backpressure_cv_.notify_one();
