@@ -1,5 +1,7 @@
 # parallel-thread-pool
 
+> **Sep 2026 (v2):** rebuilt as a header-only work-stealing pool — futures, exception propagation, helping `parallel_for`, backpressure; 16 tests under TSAN/ASAN; benchmarks that show where stealing wins and where it honestly ties.
+
 A header-only C++17 thread pool with **work stealing**, **futures**, **exception propagation**,
 **`parallel_for`**, **backpressure**, and **graceful shutdown** — with a benchmark suite that
 shows where each design decision pays off *and where it doesn't*, and a test suite that runs
