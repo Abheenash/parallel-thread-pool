@@ -59,8 +59,12 @@ private:
     };
     template <class F>
     struct Model final : Concept {
-        explicit Model(F&& f) : f(std::move(f)) {}
-        explicit Model(const F& f) : f(f) {}
+        // Parameter named fn, not f: GCC's -Wshadow flags a constructor
+        // parameter shadowing a member even in the safe `f(std::move(f))`
+        // idiom, and clang does not. Renaming satisfies both and reads better
+        // than suppressing the warning.
+        explicit Model(F&& fn) : f(std::move(fn)) {}
+        explicit Model(const F& fn) : f(fn) {}
         void call() override { f(); }
         F f;
     };
