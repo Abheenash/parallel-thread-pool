@@ -1,3 +1,11 @@
 build/
 build-*/
 .DS_Store
+
+# iCloud/Finder sync duplicates ("main 2.tf", ".terraform.lock 2.hcl").
+# They are byte-copies that Terraform reads as duplicate declarations.
+* [0-9].tf
+* [0-9].hcl
+* [0-9].yaml
+* [0-9].yml
+* [0-9].py

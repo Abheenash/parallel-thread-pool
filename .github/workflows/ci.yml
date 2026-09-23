@@ -7,7 +7,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build -j
       - run: ctest --test-dir build --output-on-failure
@@ -18,7 +18,7 @@ jobs:
       matrix:
         san: [thread, address]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTP_SANITIZE=${{ matrix.san }} -DTP_BUILD_BENCH=OFF
       - run: cmake --build build -j
       - run: ctest --test-dir build --output-on-failure

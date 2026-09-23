@@ -1,0 +1,50 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits"
+  ],
+  "timezone": "America/Chicago",
+  "schedule": ["before 6am on monday"],
+  "prConcurrentLimit": 5,
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Group all GitHub Actions bumps into one PR — they are rarely breaking and reviewing ten separate PRs is how drift wins.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    },
+    {
+      "description": "Terraform providers and modules: majors get their own PR because they carry upgrade guides (aws v5->v6, eks module 20->21).",
+      "matchManagers": ["terraform"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "addLabels": ["breaking"]
+    },
+    {
+      "description": "Terraform minor/patch can be grouped and merged quickly.",
+      "matchManagers": ["terraform"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "terraform minor/patch"
+    },
+    {
+      "description": "Security-gate actions are pinned to exact versions on purpose — trivy-action was compromised in March 2026 and @master pulled the poisoned build. Never let these float.",
+      "matchPackageNames": [
+        "aquasecurity/trivy-action",
+        "bridgecrewio/checkov-action",
+        "gitleaks/gitleaks-action",
+        "sigstore/cosign-installer"
+      ],
+      "rangeStrategy": "pin",
+      "addLabels": ["security-tooling"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "schedule": ["at any time"]
+  },
+  "osvVulnerabilityAlerts": true,
+  "lockFileMaintenance": { "enabled": true }
+}
