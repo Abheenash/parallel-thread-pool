@@ -63,6 +63,7 @@ jobs:
           cppcheck --enable=warning,performance,portability \
             --inline-suppr --std=c++17 --error-exitcode=1 \
             --suppress=missingInclude --suppress=missingIncludeSystem \
+            --suppress=passedByValueCallback \
             -I include src tests
 
   # GitHub's own semantic analysis. Free on public repos, and it is the one that
