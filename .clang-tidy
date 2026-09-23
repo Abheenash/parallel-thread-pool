@@ -1,0 +1,37 @@
+# Static analysis, not formatting.
+#
+# There is deliberately no .clang-format here. This codebase uses compact
+# multi-statement guard clauses:
+#
+#     if (s == "always") { out = Fsync::Always; return true; }
+#
+# clang-format cannot express that — AllowShortBlocksOnASingleLine only keeps
+# SINGLE-statement blocks — so enforcing it would expand every guard in the
+# project and make the code longer without making it better. The checks below
+# find defects instead, which is the part worth gating on.
+Checks: >
+  bugprone-*,
+  cert-*,
+  concurrency-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  clang-analyzer-*,
+  misc-*,
+  -bugprone-easily-swappable-parameters,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-braces-around-statements,
+  -readability-function-cognitive-complexity,
+  -misc-non-private-member-variables-in-classes,
+  -cert-err58-cpp
+
+WarningsAsErrors: 'bugprone-*,concurrency-*,clang-analyzer-*,cert-*'
+
+HeaderFilterRegex: '(include|src)/.*\.(hpp|h)$'
+
+CheckOptions:
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: _

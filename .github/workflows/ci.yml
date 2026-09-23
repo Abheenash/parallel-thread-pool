@@ -25,3 +25,59 @@ jobs:
         env:
           TSAN_OPTIONS: halt_on_error=1
           ASAN_OPTIONS: detect_leaks=1
+
+  # Warnings-as-errors, CI only. Kept out of CMakeLists so a contributor on a
+  # newer compiler that emits a new warning can still build locally, while the
+  # gate stays strict.
+  strict-warnings:
+    name: -Werror
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror"
+      - run: cmake --build build -j
+
+  # clang-tidy finds what the compiler does not: use-after-move, lifetime bugs,
+  # missing locks, and the concurrency checks that matter most in this repo.
+  clang-tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: install
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+      - name: configure (export compile_commands.json)
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      - name: analyse
+        run: |
+          FILES=$(git ls-files '*.cpp' '*.hpp' '*.h' | grep -v '^build/' || true)
+          [ -z "$FILES" ] && { echo "no sources"; exit 0; }
+          clang-tidy -p build $FILES
+
+  cppcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: sudo apt-get update && sudo apt-get install -y cppcheck
+      - name: analyse
+        run: |
+          cppcheck --enable=warning,performance,portability \
+            --inline-suppr --std=c++17 --error-exitcode=1 \
+            --suppress=missingInclude --suppress=missingIncludeSystem \
+            -I include src tests
+
+  # GitHub's own semantic analysis. Free on public repos, and it is the one that
+  # reads across translation units rather than file by file.
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: c-cpp
+          queries: security-and-quality
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build -j
+      - uses: github/codeql-action/analyze@v4
