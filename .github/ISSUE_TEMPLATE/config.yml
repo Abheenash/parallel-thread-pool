@@ -1,0 +1,6 @@
+# GitHub shows these links alongside the issue templates.
+blank_issues_enabled: true
+contact_links:
+  - name: The write-ups
+    url: https://abheenash.com
+    about: The reasoning, benchmarks and war stories behind these projects.
