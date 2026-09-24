@@ -1,0 +1,27 @@
+# Local gates. The heavy C++ analysis (clang-tidy, cppcheck, the sanitizers,
+# -Werror) runs in CI, where it has a clean toolchain; these are the cheap checks
+# that catch the things that waste a CI round-trip.
+#   pip install pre-commit && pre-commit install
+#
+# clang-format is deliberately NOT here. There is no .clang-format in this repo,
+# so adding the hook would reformat every file to whatever default it picked --
+# a hook that rewrites the whole tree on first run is a hook people uninstall.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        # Two trailing spaces in Markdown are a hard line break, not whitespace
+        # to clean up; without this the hook silently rewrites the README.
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=512]
+      - id: detect-private-key
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks

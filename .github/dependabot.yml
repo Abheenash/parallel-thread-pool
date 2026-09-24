@@ -1,0 +1,23 @@
+# Dependency updates.
+#
+# There is no package manager here — this is C++ with no external dependencies,
+# which is deliberate and is part of the point of the project. What DOES rot is
+# the GitHub Actions the workflow pins: actions/checkout, github/codeql-action.
+# An unmaintained action version is the supply-chain surface a project like this
+# actually has, so that is what Dependabot watches.
+#
+# Dependabot rather than Renovate: Renovate is a GitHub App that was never
+# installed on this account, so a renovate.json here would update nothing.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    groups:
+      # Rarely breaking, and always worth reviewing together.
+      actions:
+        patterns: ["*"]
